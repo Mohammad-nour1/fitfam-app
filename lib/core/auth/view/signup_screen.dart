@@ -1,6 +1,6 @@
-import 'dart:ui'; 
+import 'dart:ui';
+import 'package:fitfam2/core/auth/view/login_screen.dart';
 import 'package:flutter/material.dart';
-
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -11,18 +11,16 @@ class SignUpScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF012532),
       body: Stack(
         children: [
-          
           Positioned(
-            left: -390, 
-            bottom: 30,
+            left: -340,
+            bottom: -60,
             child: BackdropFilter(
-              filter:
-                  ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
               child: Opacity(
-                opacity: 0.7, 
+                opacity: 0.7,
                 child: Image.asset(
-                  'assets/images/logo2.png', 
-                 
+                  'assets/images/logo2.png',
+                  height: 750,
                 ),
               ),
             ),
@@ -50,8 +48,11 @@ class SignUpScreen extends StatelessWidget {
                   const SizedBox(height: 30),
                   ElevatedButton(
                     onPressed: () {
-                      
-                      Navigator.pushNamed(context, '/LoginScreen');
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        (route) => false,
+                      );
                     },
                     child: const Text("إنشاء الحساب"),
                   ),

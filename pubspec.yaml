@@ -42,6 +42,11 @@ dependencies:
   curved_navigation_bar: ^1.0.6
   flutter_localizations:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/images/logoapp.png"
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +82,7 @@ flutter:
     - assets/images/logo.png
     - assets/images/logo2.png
     - assets/images/prof.png
+    - assets/images/logoapp.png
     - assets/images/user.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

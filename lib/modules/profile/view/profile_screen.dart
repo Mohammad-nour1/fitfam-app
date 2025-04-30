@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,12 +13,10 @@ class ProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 1),
-
             const CircleAvatar(
               radius: 40,
               backgroundImage: AssetImage('assets/images/user.png'),
             ),
-
             const SizedBox(height: 10),
             const Text(
               "عادل إمام",
@@ -31,38 +28,18 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 4),
             const Text("ahmad@email.com",
                 style: TextStyle(color: Colors.white70)),
-
             const SizedBox(height: 30),
-
-            
             _buildInfoRow("العمر", "25"),
             _buildInfoRow("الوزن", "70 كجم"),
             _buildInfoRow("عدد أفراد العائلة", "4"),
             _buildInfoRow("نوع النشاط المفضل", "مشي"),
-
             const SizedBox(height: 10),
-
-            
-            _buildSectionTitle("خيارات أخرى"),
-            _buildMenuTile(
-              icon: Icons.star,
-              text: "شاراتي",
-              onTap: () => Navigator.pushNamed(context, '/rewards'),
-            ),
-            _buildMenuTile(
-              icon: Icons.settings,
-              text: "الإعدادات",
-              onTap: () => Navigator.pushNamed(context, '/settings'),
-            ),
             _buildMenuTile(
               icon: Icons.support_agent,
               text: "الدعم الفني",
               onTap: () => Navigator.pushNamed(context, '/support'),
             ),
-
             const Spacer(),
-
-           
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -72,7 +49,7 @@ class ProfileScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/user-setup');
+                Navigator.pushReplacementNamed(context, '/LoginScreen');
               },
               child: const Text("تسجيل الخروج"),
             ),

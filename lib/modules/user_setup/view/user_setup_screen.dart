@@ -13,6 +13,7 @@ class UserSetupScreen extends StatelessWidget {
       create: (_) => UserSetupBloc(),
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text('إعداد حسابك الشخصي'),
         ),
         body: const UserSetupForm(),
@@ -36,7 +37,7 @@ class _UserSetupFormState extends State<UserSetupForm> {
   String activityType = 'مشي';
   String goal = 'تحسين اللياقة';
 
-  final dropdownTextStyle = const TextStyle(color: Colors.white); 
+  final dropdownTextStyle = const TextStyle(color: Colors.white);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,7 @@ class _UserSetupFormState extends State<UserSetupForm> {
               const Text("عدد أفراد العائلة:",
                   style: TextStyle(color: Colors.white)),
               DropdownButtonFormField<int>(
-                dropdownColor: const Color(0xFF012532), 
+                dropdownColor: const Color(0xFF012532),
                 value: familyMembers,
                 style: dropdownTextStyle,
                 items: List.generate(10, (index) {

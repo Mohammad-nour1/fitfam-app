@@ -21,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'assets/images/2.png',
     'assets/images/3.png',
     'assets/images/4.png',
-  
   ];
 
   int _currentIndex = 0;
@@ -107,7 +106,6 @@ class _HomeContent extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false, 
         title: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
             if (state is HomeLoaded) {
@@ -130,13 +128,13 @@ class _HomeContent extends StatelessWidget {
           if (state is HomeLoaded) {
             final data = state.data;
             return ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               children: [
                 _buildChallengeCard(data),
-                const SizedBox(height: 20),
-                _buildFamilySection(data),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 _buildStatsSection(),
+                const SizedBox(height: 15),
+                _buildFamilySection(data),
                 const SizedBox(height: 20),
                 _buildBadgesSection(),
               ],
@@ -157,7 +155,7 @@ class _HomeContent extends StatelessWidget {
       floatingActionButton: Align(
         alignment: Alignment.bottomRight,
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 30, right: 38),
+          padding: const EdgeInsets.only(bottom: 50, right: 45),
           child: FloatingActionButton.extended(
             backgroundColor: const Color(0xFF8CEE2B),
             onPressed: () {
@@ -226,7 +224,7 @@ class _HomeContent extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: data.familyActivity.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (_, __) => const SizedBox(width: 25),
             itemBuilder: (context, index) {
               final member = data.familyActivity[index];
               return Column(
@@ -273,6 +271,9 @@ class _HomeContent extends StatelessWidget {
             );
           }),
         ),
+        SizedBox(
+          height: 110,
+        )
       ],
     );
   }
@@ -295,16 +296,16 @@ class _HomeContent extends StatelessWidget {
               color: const Color(0xFFB2E475),
               size: 45.0,
             ),
-            const SizedBox(width: 30),
+            const SizedBox(width: 10),
             _buildAnimatedStatCircle(
               icon: Icons.directions_walk,
               label: "خطوات",
               value: 6500,
               goal: 10000,
               color: const Color(0xFF8CEE2B),
-              size: 58.0,
+              size: 59.0,
             ),
-            const SizedBox(width: 30),
+            const SizedBox(width: 10),
             _buildAnimatedStatCircle(
               icon: Icons.straighten,
               label: "مسافة",

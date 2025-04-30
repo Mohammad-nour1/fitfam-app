@@ -1,4 +1,5 @@
-import 'dart:ui'; 
+import 'dart:ui';
+import 'package:fitfam2/modules/user_setup/view/user_setup_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -10,18 +11,16 @@ class LoginScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF012532),
       body: Stack(
         children: [
-          
           Positioned(
-            left: -390, 
-            bottom: 30,
+            left: -340,
+            bottom: -60,
             child: BackdropFilter(
-              filter:
-                  ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0), 
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
               child: Opacity(
                 opacity: 0.7,
                 child: Image.asset(
                   'assets/images/logo2.png',
-
+                  height: 750,
                 ),
               ),
             ),
@@ -48,15 +47,18 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 30),
                   ElevatedButton(
                     onPressed: () {
-                      
-                      Navigator.pushNamed(context, '/user-setup');
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const UserSetupScreen()),
+                        (route) => false,
+                      );
                     },
                     child: const Text("تسجيل الدخول"),
                   ),
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      
                       Navigator.pushNamed(context, '/SignUpScreen');
                     },
                     child: const Text("ليس لديك حساب؟ أنشئ واحدًا",
