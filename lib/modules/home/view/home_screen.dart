@@ -118,6 +118,19 @@ class _HomeContent extends StatelessWidget {
                     color: Colors.white, fontWeight: FontWeight.bold));
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.watch,
+              color: Color.fromARGB(255, 52, 255, 1),
+              size: 25,
+            ),
+            tooltip: 'ربط الساعة',
+            onPressed: () {
+              Navigator.pushNamed(context, '/device-setup');
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {

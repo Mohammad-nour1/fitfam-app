@@ -26,7 +26,7 @@ class ProfileScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            const Text("ahmad@email.com",
+            const Text("adel213@gmail.com",
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 30),
             _buildInfoRow("العمر", "25"),
@@ -39,19 +39,27 @@ class ProfileScreen extends StatelessWidget {
               text: "الدعم الفني",
               onTap: () => Navigator.pushNamed(context, '/support'),
             ),
+            _buildMenuTile(
+              icon: Icons.emoji_events,
+              text: "النقاط والشارات",
+              onTap: () => Navigator.pushNamed(context, '/points'),
+            ),
             const Spacer(),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 35),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(10)),
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/LoginScreen');
               },
-              child: const Text("تسجيل الخروج"),
+              child: const Text(
+                "تسجيل الخروج",
+                style: TextStyle(fontSize: 20),
+              ),
             ),
           ],
         ),

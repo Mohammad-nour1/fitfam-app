@@ -1,9 +1,11 @@
 import 'package:fitfam2/modules/family/view/family_activity_screen.dart';
+import 'package:fitfam2/modules/family/view/health_tree_screen.dart';
+import 'package:fitfam2/modules/rewards/pointes_screen.dart';
+import 'package:fitfam2/modules/watch/watch_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '../core/auth/bloc/app_bloc.dart';
-import '../modules/setting/view/settings_screen.dart';
 import '../modules/support/view/support_screen.dart';
 import '../modules/rewards/view/rewards_screen.dart';
 import '../modules/user_setup/view/user_setup_screen.dart';
@@ -78,11 +80,15 @@ class FitFamApp extends StatelessWidget {
                 return MaterialPageRoute(
                   builder: (_) => ChallengeDetailsScreen(challengeId: challengeId),
                 );
-              case '/settings':
-                return MaterialPageRoute(builder: (_) => const SettingsScreen());
+              case '/health-tree':
+                return MaterialPageRoute(builder: (_) => const HealthTreeScreen());
+                case '/points':
+                return MaterialPageRoute(builder: (_) => const PointsScreen());
                 case '/family-activity':
-  return MaterialPageRoute(builder: (_) => const FamilyActivityScreen());
-
+                return MaterialPageRoute(builder: (_) => const FamilyActivityScreen());
+              case '/device-setup':
+                return MaterialPageRoute(builder: (_) => const DeviceSetupScreen());
+    
               case '/support':
                 return MaterialPageRoute(builder: (_) => const SupportScreen());
               default:

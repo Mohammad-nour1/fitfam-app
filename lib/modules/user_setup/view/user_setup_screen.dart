@@ -36,6 +36,8 @@ class _UserSetupFormState extends State<UserSetupForm> {
   String ageGroup = '18-30';
   String activityType = 'مشي';
   String goal = 'تحسين اللياقة';
+  
+  int weight = 60;
 
   final dropdownTextStyle = const TextStyle(color: Colors.white);
 
@@ -100,7 +102,7 @@ class _UserSetupFormState extends State<UserSetupForm> {
                 dropdownColor: const Color(0xFF012532),
                 value: activityType,
                 style: dropdownTextStyle,
-                items: ['مشي', 'جري', 'سباحة', 'رياضة منزلية'].map((e) {
+                items: ['مشي', 'جري', 'رياضة منزلية'].map((e) {
                   return DropdownMenuItem(
                       value: e, child: Text(e, style: dropdownTextStyle));
                 }).toList(),
@@ -128,6 +130,25 @@ class _UserSetupFormState extends State<UserSetupForm> {
                   });
                 },
               ),
+              
+              const SizedBox(height: 20),
+              const Text("الوزن:", style: TextStyle(color: Colors.white)),
+              DropdownButtonFormField<int>(
+                dropdownColor: const Color(0xFF012532),
+                value: weight,
+                style: dropdownTextStyle,
+                items: [for (int i = 30; i <= 130; i += 10) i]
+                    .map((value) => DropdownMenuItem(
+                          value: value,
+                          child: Text("$value كجم", style: dropdownTextStyle),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    weight = value!;
+                  });
+                },
+              ),
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
@@ -138,6 +159,8 @@ class _UserSetupFormState extends State<UserSetupForm> {
                             ageGroup: ageGroup,
                             activityType: activityType,
                             goal: goal,
+                            
+                            weight: weight,
                           ),
                         );
                   }

@@ -16,6 +16,8 @@ class UserSetupBloc extends Bloc<UserSetupEvent, UserSetupState> {
           ageGroup: event.ageGroup,
           activityType: event.activityType,
           goal: event.goal,
+          
+          weight: event.weight,
         );
         emit(UserSetupSuccess());
       } catch (e) {

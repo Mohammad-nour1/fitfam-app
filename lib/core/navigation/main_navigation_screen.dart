@@ -1,7 +1,7 @@
 import 'package:fitfam2/modules/family/view/family_activity_screen.dart';
+import 'package:fitfam2/modules/family/view/health_tree_screen.dart';
 import 'package:fitfam2/modules/home/bloc/home_bloc.dart';
 import 'package:fitfam2/modules/home/bloc/home_event.dart';
-import 'package:fitfam2/modules/rewards/view/rewards_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +27,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       create: (_) => HomeBloc()..add(LoadHomeDataEvent()),
       child: const HomeScreen(),
     ),
-    const RewardsScreen(),
+    const HealthTreeScreen(),
     const ProfileScreen(),
   ];
 
@@ -35,7 +35,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     Icon(Icons.family_restroom, size: 30, color: Colors.black),
     Icon(Icons.flag, size: 30, color: Colors.black),
     Icon(Icons.home, size: 30, color: Colors.black),
-    Icon(Icons.emoji_events, size: 30, color: Colors.black),
+    Icon(Icons.spa_outlined, size: 30, color: Colors.black),
     Icon(Icons.person, size: 30, color: Colors.black),
   ];
 
@@ -43,7 +43,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     'العائلة',
     'التحديات',
     'الرئيسية',
-    'الشارات',
+    'شجرة العائلة',
     'الملف الشخصي',
   ];
 

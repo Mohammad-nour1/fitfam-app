@@ -29,27 +29,45 @@ class FamilyActivityScreen extends StatelessWidget {
                     color: const Color(0xFF5F757C).withOpacity(0.3),
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
-                      leading: CircleAvatar(backgroundImage: AssetImage(member.avatar)),
-                      title: Text(member.name, style: const TextStyle(color: Colors.white)),
-                      subtitle: Text("${member.steps} خطوة", style: const TextStyle(color: Color(0xFFB2E475))),
-                      trailing: Text("${(member.progress * 100).toInt()}%", style: const TextStyle(color: Colors.white)),
+                      leading: CircleAvatar(
+                          backgroundImage: AssetImage(member.avatar)),
+                      title: Text(member.name,
+                          style: const TextStyle(color: Colors.white)),
+                      subtitle: Text("${member.steps} خطوة",
+                          style: const TextStyle(color: Color(0xFFB2E475))),
+                      trailing: Text("${(member.progress * 100).toInt()}%",
+                          style: const TextStyle(color: Colors.white)),
                     ),
                   );
                 },
               );
             } else {
               return const Center(
-                child: Text("لا يوجد أفراد مضافين بعد", style: TextStyle(color: Colors.white)),
+                child: Text("لا يوجد أفراد مضافين بعد",
+                    style: TextStyle(color: Colors.white)),
               );
             }
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: const Color(0xFF8CEE2B),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const AddFamilyMemberScreen()));
-          },
-          child: const Icon(Icons.person_add),
+        floatingActionButton: Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 50, right: 45),
+            child: FloatingActionButton.extended(
+              backgroundColor: const Color(0xFF8CEE2B),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const AddFamilyMemberScreen()));
+              },
+              icon: const Icon(Icons.person_add),
+              label: const Text(
+                "َ أضف فرد",
+                style: TextStyle(fontSize: 17),
+              ),
+            ),
+          ),
         ),
       ),
     );

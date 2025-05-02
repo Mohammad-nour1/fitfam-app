@@ -6,6 +6,8 @@ class UserSetupController {
     required String ageGroup,
     required String activityType,
     required String goal,
+    
+    required int weight,
   }) async {
    
   
