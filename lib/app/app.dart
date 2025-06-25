@@ -1,3 +1,4 @@
+import 'package:fitfam2/modules/challenges/view/random_challenge_screen.dart';
 import 'package:fitfam2/modules/family/view/family_activity_screen.dart';
 import 'package:fitfam2/modules/family/view/health_tree_screen.dart';
 import 'package:fitfam2/modules/rewards/pointes_screen.dart';
@@ -88,7 +89,9 @@ class FitFamApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (_) => const FamilyActivityScreen());
               case '/device-setup':
                 return MaterialPageRoute(builder: (_) => const DeviceSetupScreen());
-    
+              case '/random-challenge':
+                  return MaterialPageRoute(builder: (_) => const RandomChallengeScreen());
+
               case '/support':
                 return MaterialPageRoute(builder: (_) => const SupportScreen());
               default:

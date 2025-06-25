@@ -13,6 +13,8 @@ class _HealthTreeScreenState extends State<HealthTreeScreen> {
     'محمد': 4,
     'عادل': 7,
     'خالد': 3,
+    'نور': 5,
+    'ليلى': 2,
   };
 
   @override
@@ -29,9 +31,9 @@ class _HealthTreeScreenState extends State<HealthTreeScreen> {
                 style: TextStyle(color: Colors.white70, fontSize: 18),
               ),
               const SizedBox(height: 10),
-              Container(
+              SizedBox(
                 width: 400,
-                height: 470,
+                height: 600,
                 child: CustomPaint(
                   painter: TreePainter(familyChallenges: familyChallenges),
                 ),
@@ -92,60 +94,44 @@ class TreePainter extends CustomPainter {
     final textStyle = TextStyle(color: Colors.white, fontSize: 14);
 
     double trunkWidth = 20;
-    double trunkHeight = 120;
+    double trunkHeight = 180;
     double startX = size.width / 2;
     double trunkTopY = size.height - trunkHeight;
 
-    // الجذع
     canvas.drawRect(
-      Rect.fromLTWH(
-          startX - trunkWidth / 2, trunkTopY, trunkWidth, trunkHeight),
+      Rect.fromLTWH(startX - trunkWidth / 2, trunkTopY, trunkWidth, trunkHeight),
       trunkPaint,
     );
 
-    // إعداد الأغصان
-    double branchSpacing = 120;
-    double branchLength = 90;
-    double baseY = trunkTopY - 40;
-
+    double angleStep = pi / (familyChallenges.length + 1);
+    double branchLength = 100;
     int index = 0;
+
     for (var entry in familyChallenges.entries) {
-      String name = entry.key;
-      int leaves = entry.value;
-
-      double direction = index % 2 == 0 ? -1 : 1;
-      double branchY = baseY - index * branchSpacing;
-
-      Offset branchStart = Offset(startX, trunkTopY);
-      Offset branchJoint = Offset(startX, branchY + 30);
-      Offset branchEnd = Offset(startX + direction * branchLength, branchY);
-
-      // رسم الغصن (خط عمودي ثم أفقي)
-      canvas.drawLine(branchStart, branchJoint, branchPaint);
-      canvas.drawLine(branchJoint, branchEnd, branchPaint);
-
-      //توزيع الأوراق 
-      double angleStep = pi / (leaves + 1);
-      double radius = 45;
-
-      for (int i = 1; i <= leaves; i++) {
-        double angle = angleStep * i - pi / 2;
-        double leafX = branchEnd.dx + cos(angle) * radius * direction;
-        double leafY = branchEnd.dy + sin(angle) * radius;
-
-        canvas.drawCircle(Offset(leafX, leafY), 10, leafPaint);
-      }
-
-     
-      final textSpan = TextSpan(text: name, style: textStyle);
-      final textPainter =
-          TextPainter(text: textSpan, textDirection: TextDirection.rtl);
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(branchEnd.dx - 20 * direction, branchEnd.dy + 20),
+      final angle = angleStep * (index + 1) - pi / 2;
+      final Offset branchStart = Offset(startX, trunkTopY);
+      final Offset branchEnd = Offset(
+        branchStart.dx + cos(angle) * branchLength,
+        branchStart.dy + sin(angle) * branchLength,
       );
 
+      canvas.drawLine(branchStart, branchEnd, branchPaint);
+
+      
+      int leaves = entry.value;
+      double leafRadius = 40;
+      for (int i = 1; i <= leaves; i++) {
+        double spreadAngle = (pi / 4);
+        double angleOffset = -spreadAngle / 2 + spreadAngle * (i / (leaves + 1));
+        double leafX = branchEnd.dx + cos(angleOffset) * leafRadius;
+        double leafY = branchEnd.dy + sin(angleOffset) * leafRadius;
+        canvas.drawCircle(Offset(leafX, leafY), 8, leafPaint);
+      }
+
+      final textSpan = TextSpan(text: entry.key, style: textStyle);
+      final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.rtl);
+      textPainter.layout();
+      textPainter.paint(canvas, Offset(branchEnd.dx + 6, branchEnd.dy));
       index++;
     }
   }

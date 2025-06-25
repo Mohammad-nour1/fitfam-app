@@ -46,6 +46,8 @@ dependencies:
   pedometer: ^4.1.1
   shared_preferences: ^2.5.3
   permission_handler: ^12.0.0+1
+  flutter_health_connect: ^1.2.3
+  health: ^13.1.1
 
 flutter_launcher_icons:
   android: true

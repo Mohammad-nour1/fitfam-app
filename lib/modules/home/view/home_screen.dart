@@ -188,21 +188,7 @@ class _HomeContent extends StatelessWidget {
           return const SizedBox.shrink();
         },
       ),
-      floatingActionButton: Align(
-        alignment: Alignment.bottomRight,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 50, right: 45),
-          child: FloatingActionButton.extended(
-            backgroundColor: const Color(0xFF8CEE2B),
-            onPressed: () {
-              Navigator.pushNamed(context, '/create-challenge');
-            },
-            icon: const Icon(Icons.directions_run),
-            label: const Text("ابدأ تحدي جديد"),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      
     );
   }
 
