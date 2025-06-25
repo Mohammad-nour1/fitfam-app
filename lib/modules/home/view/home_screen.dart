@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
@@ -27,6 +28,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Timer _timer;
   late AnimationController _animationController;
   DateTime? _lastPressedAt;
+  late StreamSubscription<StepCount> _stepSub;
+  int _initialSteps = 0;
 
   @override
   void initState() {
@@ -43,12 +46,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 2),
     )..forward();
+
+    _stepSub = Pedometer.stepCountStream.listen((StepCount event) {
+      final currentSteps = event.steps;
+      if (_initialSteps == 0) _initialSteps = currentSteps;
+      final stepsToday = currentSteps - _initialSteps;
+
+      final distance = stepsToday / 1312; 
+      final calories = stepsToday * 0.04; 
+
+      context.read<HomeBloc>().add(
+        UpdateStepDataEvent(
+          todayStats: TodayStats(
+            steps: stepsToday,
+            distance: distance,
+            calories: calories,
+          ),
+        ),
+      );
+    });
   }
 
   @override
   void dispose() {
     _timer.cancel();
     _animationController.dispose();
+    _stepSub.cancel();
     super.dispose();
   }
 
@@ -145,7 +168,7 @@ class _HomeContent extends StatelessWidget {
               children: [
                 _buildChallengeCard(data),
                 const SizedBox(height: 15),
-                _buildStatsSection(),
+                _buildStatsSection(data.todayStats),
                 const SizedBox(height: 15),
                 _buildFamilySection(data),
                 const SizedBox(height: 20),
@@ -222,6 +245,83 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
+  Widget _buildStatsSection(TodayStats stats) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("إحصائياتي اليوم",
+            style: TextStyle(color: Colors.white, fontSize: 18)),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildAnimatedStatCircle(
+              icon: Icons.local_fire_department,
+              label: "سعرات",
+              value: stats.calories.toInt(),
+              goal: 500,
+              color: const Color(0xFFB2E475),
+              size: 45.0,
+            ),
+            const SizedBox(width: 10),
+            _buildAnimatedStatCircle(
+              icon: Icons.directions_walk,
+              label: "خطوات",
+              value: stats.steps,
+              goal: 10000,
+              color: const Color(0xFF8CEE2B),
+              size: 59.0,
+            ),
+            const SizedBox(width: 10),
+            _buildAnimatedStatCircle(
+              icon: Icons.straighten,
+              label: "مسافة",
+              value: stats.distance.toInt(),
+              goal: 7,
+              color: const Color(0xFFB2E475),
+              size: 45.0,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedStatCircle({
+    required IconData icon,
+    required String label,
+    required int value,
+    required int goal,
+    required Color color,
+    required double size,
+  }) {
+    double percent = (value / goal).clamp(0.0, 1.0);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: percent),
+      duration: const Duration(seconds: 2),
+      builder: (context, animationValue, child) {
+        return Column(
+          children: [
+            CircularPercentIndicator(
+              radius: size,
+              lineWidth: 8.0,
+              percent: animationValue,
+              center: Icon(icon, size: size / 1.5, color: color),
+              progressColor: color,
+              backgroundColor: Colors.white24,
+              circularStrokeCap: CircularStrokeCap.round,
+            ),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(color: Colors.white)),
+            Text("$value",
+                style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildFamilySection(HomeData data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,87 +384,8 @@ class _HomeContent extends StatelessWidget {
             );
           }),
         ),
-        SizedBox(
-          height: 110,
-        )
+        const SizedBox(height: 110),
       ],
-    );
-  }
-
-  Widget _buildStatsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("إحصائياتي اليوم",
-            style: TextStyle(color: Colors.white, fontSize: 18)),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildAnimatedStatCircle(
-              icon: Icons.local_fire_department,
-              label: "سعرات",
-              value: 320,
-              goal: 500,
-              color: const Color(0xFFB2E475),
-              size: 45.0,
-            ),
-            const SizedBox(width: 10),
-            _buildAnimatedStatCircle(
-              icon: Icons.directions_walk,
-              label: "خطوات",
-              value: 6500,
-              goal: 10000,
-              color: const Color(0xFF8CEE2B),
-              size: 59.0,
-            ),
-            const SizedBox(width: 10),
-            _buildAnimatedStatCircle(
-              icon: Icons.straighten,
-              label: "مسافة",
-              value: 4,
-              goal: 7,
-              color: const Color(0xFFB2E475),
-              size: 45.0,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAnimatedStatCircle({
-    required IconData icon,
-    required String label,
-    required int value,
-    required int goal,
-    required Color color,
-    required double size,
-  }) {
-    double percent = (value / goal).clamp(0.0, 1.0);
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: percent),
-      duration: const Duration(seconds: 2),
-      builder: (context, animationValue, child) {
-        return Column(
-          children: [
-            CircularPercentIndicator(
-              radius: size,
-              lineWidth: 8.0,
-              percent: animationValue,
-              center: Icon(icon, size: size / 1.5, color: color),
-              progressColor: color,
-              backgroundColor: Colors.white24,
-              circularStrokeCap: CircularStrokeCap.round,
-            ),
-            const SizedBox(height: 8),
-            Text(label, style: const TextStyle(color: Colors.white)),
-            Text("$value",
-                style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-          ],
-        );
-      },
     );
   }
 }

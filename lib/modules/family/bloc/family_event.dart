@@ -17,3 +17,11 @@ class UpdateFamilyMemberStepsEvent extends FamilyEvent {
   final int steps;
   UpdateFamilyMemberStepsEvent(this.id, this.steps);
 }
+
+class EditFamilyMemberEvent extends FamilyEvent {
+  final String id;
+  final String newName;
+  final String? newAvatar; // اختياري
+
+  EditFamilyMemberEvent(this.id, this.newName, {this.newAvatar});
+}

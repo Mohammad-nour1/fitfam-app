@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/family_bloc.dart';
 import '../bloc/family_state.dart';
-
+import '../bloc/family_event.dart';
+import '../model/family_member.dart';
 import 'add_family_member_screen.dart';
 
 class FamilyActivityScreen extends StatelessWidget {
@@ -30,13 +31,26 @@ class FamilyActivityScreen extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
                       leading: CircleAvatar(
-                          backgroundImage: AssetImage(member.avatar)),
+                        backgroundImage: AssetImage(member.avatar),
+                      ),
                       title: Text(member.name,
                           style: const TextStyle(color: Colors.white)),
                       subtitle: Text("${member.steps} خطوة",
                           style: const TextStyle(color: Color(0xFFB2E475))),
-                      trailing: Text("${(member.progress * 100).toInt()}%",
-                          style: const TextStyle(color: Colors.white)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${(member.progress * 100).toInt()}%",
+                              style: const TextStyle(color: Colors.white)),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            tooltip: 'حذف الفرد',
+                            onPressed: () {
+                              _confirmDelete(context, member);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -57,9 +71,9 @@ class FamilyActivityScreen extends StatelessWidget {
               backgroundColor: const Color(0xFF8CEE2B),
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const AddFamilyMemberScreen()));
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddFamilyMemberScreen()),
+                );
               },
               icon: const Icon(Icons.person_add),
               label: const Text(
@@ -69,6 +83,29 @@ class FamilyActivityScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, FamilyMember member) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("تأكيد الحذف"),
+        content: Text("هل تريد حذف ${member.name} من العائلة؟"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("إلغاء"),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<FamilyBloc>().add(RemoveFamilyMemberEvent(member.id));
+              Navigator.pop(context);
+            },
+            child: const Text("نعم، احذف"),
+          ),
+        ],
       ),
     );
   }

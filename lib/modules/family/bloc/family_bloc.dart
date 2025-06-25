@@ -15,25 +15,47 @@ class FamilyBloc extends Bloc<FamilyEvent, FamilyState> {
     on<RemoveFamilyMemberEvent>((event, emit) {
       final currentState = state;
       if (currentState is FamilyLoaded) {
-        emit(FamilyLoaded(currentState.members.where((m) => m.id != event.id).toList()));
+        final updatedList =
+            currentState.members.where((m) => m.id != event.id).toList();
+        emit(FamilyLoaded(updatedList));
       }
     });
 
     on<UpdateFamilyMemberStepsEvent>((event, emit) {
       final currentState = state;
       if (currentState is FamilyLoaded) {
-        emit(FamilyLoaded(currentState.members.map((member) {
+        final updatedList = currentState.members.map((member) {
           if (member.id == event.id) {
             return FamilyMember(
               id: member.id,
               name: member.name,
               avatar: member.avatar,
               steps: event.steps,
-              progress: event.steps / 10000, 
+              progress: event.steps / 10000,
             );
           }
           return member;
-        }).toList()));
+        }).toList();
+        emit(FamilyLoaded(updatedList));
+      }
+    });
+
+    on<EditFamilyMemberEvent>((event, emit) {
+      final currentState = state;
+      if (currentState is FamilyLoaded) {
+        final updatedList = currentState.members.map((member) {
+          if (member.id == event.id) {
+            return FamilyMember(
+              id: member.id,
+              name: event.newName,
+              avatar: event.newAvatar ?? member.avatar,
+              steps: member.steps,
+              progress: member.progress,
+            );
+          }
+          return member;
+        }).toList();
+        emit(FamilyLoaded(updatedList));
       }
     });
   }
