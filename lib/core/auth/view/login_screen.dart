@@ -45,11 +45,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              const Text("فشل تسجيل الدخول: تأكد من صحة البريد وكلمة المرور"),
+        const SnackBar(
+          content: Text("فشل تسجيل الدخول: تأكد من صحة البريد وكلمة المرور"),
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
+          duration: Duration(seconds: 3),
         ),
       );
     }
@@ -61,55 +60,58 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF012532),
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           Positioned(
-            left: -340,
-            bottom: -60,
+            bottom: -220,
+            left: -360,
             child: Opacity(
               opacity: 0.7,
               child: Image.asset('assets/images/logo2.png', height: 750),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 90),
-                  const Icon(Icons.sports_handball_rounded,
-                      size: 80, color: Color(0xFF8CEE2B)),
-                  const SizedBox(height: 10),
-                  const Text("أهلاً بك في FitFam",
-                      style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 40),
-                  _inputField("البريد الإلكتروني", _emailController),
-                  const SizedBox(height: 15),
-                  _inputField("كلمة المرور", _passwordController,
-                      isPassword: true),
-                  const SizedBox(height: 20),
-                  if (_error != null)
-                    Text(_error!, style: const TextStyle(color: Colors.red)),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
-                    child: _isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text("تسجيل الدخول"),
-                  ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, '/SignUpScreen'),
-                    child: const Text("ليس لديك حساب؟ أنشئ واحدًا",
-                        style: TextStyle(color: Colors.white70)),
-                  ),
-                ],
-              ),
+          SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 100,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.sports_handball_rounded,
+                    size: 80, color: Color(0xFF8CEE2B)),
+                const SizedBox(height: 10),
+                const Text("أهلاً بك في FitFam",
+                    style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 40),
+                _inputField("البريد الإلكتروني", _emailController),
+                const SizedBox(height: 15),
+                _inputField("كلمة المرور", _passwordController,
+                    isPassword: true),
+                const SizedBox(height: 20),
+                if (_error != null)
+                  Text(_error!, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _login,
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text("تسجيل الدخول"),
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/SignUpScreen'),
+                  child: const Text("ليس لديك حساب؟ أنشئ واحدًا",
+                      style: TextStyle(color: Colors.white70)),
+                ),
+              ],
             ),
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:fitfam2/modules/family/bloc/family_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/family_bloc.dart';
@@ -27,17 +28,64 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: "اسم الفرد",
-                filled: true,
-                fillColor: Color(0xFF5F757C),
-                hintStyle: TextStyle(color: Colors.white70),
-                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12)), borderSide: BorderSide.none),
-              ),
-              style: const TextStyle(color: Colors.white),
+           TextField(
+  decoration: const InputDecoration(
+    hintText: "ابحث عن صديق",
+    hintStyle: TextStyle(color: Colors.white70),
+    fillColor: Colors.white10,
+    filled: true,
+    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+  ),
+  style: const TextStyle(color: Colors.white),
+  onChanged: (query) {
+    context.read<FamilyBloc>().add(SearchUserEvent(query));
+  },
+),
+BlocBuilder<FamilyBloc, FamilyState>(
+  builder: (context, state) {
+    if (state is SearchSuccess) {
+      if (state.suggestions.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: Text(
+            "لا يوجد نتائج لهذا الاسم",
+            style: TextStyle(color: Colors.white70),
+          ),
+        );
+      }
+
+      return Column(
+        children: state.suggestions.map((user) {
+          return ListTile(
+            title: Text(user.name, style: const TextStyle(color: Colors.white)),
+            subtitle: Text(user.email, style: const TextStyle(color: Colors.white70)),
+            trailing: ElevatedButton(
+              onPressed: () {
+                final member = FamilyMember(
+                  id: user.id.toString(),
+                  name: user.name,
+                  avatar: 'assets/images/user.png',
+                  steps: 0,
+                  progress: 0,
+                );
+                context.read<FamilyBloc>().add(AddFamilyMemberEvent(member));
+                Navigator.pop(context);
+              },
+              child: const Text("إضافة"),
             ),
+          );
+        }).toList(),
+      );
+    } else if (state is FamilyLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return const SizedBox.shrink();
+  },
+),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {

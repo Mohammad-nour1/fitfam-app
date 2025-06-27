@@ -16,48 +16,87 @@ class _HealthTreeScreenState extends State<HealthTreeScreen> {
     'نور': 3,
     'ليلى': 4,
     'سارة': 3,
-    'ياسين': 8
+    'ياسين': 8,
   };
+
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF012532),
-      body: Column(
-        children: [
-          const SizedBox(height: 80),
-          const SizedBox(height: 0),
-          Expanded(
-            child: Center(
-              child: CustomPaint(
-                painter: TreePainter(familyChallenges: familyChallenges),
-                size: const Size(double.infinity, double.infinity),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+
+            // ⬇️ شجرة العائلة
+            Expanded(
+              flex: 5,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: CustomPaint(
+                  painter: TreePainter(familyChallenges: familyChallenges),
+                  size: Size.infinite,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 5),
-          ...familyChallenges.entries
-              .map((entry) => Text("${entry.key}: ${entry.value} تحديات",
-                  style:
-                      const TextStyle(color: Color(0xFF8CEE2B), fontSize: 16)))
-              .toList(),
-          const SizedBox(height: 10),
-          ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                familyChallenges['محمد'] = (familyChallenges['محمد'] ?? 0) + 1;
-              });
-            },
-            icon: const Icon(Icons.check_circle),
-            label: const Text("أنجز تحدي"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF8CEE2B),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+
+            // 📂 قائمة منسدلة
+            Expanded(
+              flex: 3,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  ExpansionTile(
+                    collapsedTextColor: Colors.white,
+                    collapsedIconColor: Colors.white,
+                    iconColor: Colors.white,
+                    textColor: const Color(0xFF8CEE2B),
+                    title: const Text(
+                      "عرض تحديات كل فرد",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    initiallyExpanded: _isExpanded,
+                    onExpansionChanged: (val) => setState(() {
+                      _isExpanded = val;
+                    }),
+                    children: familyChallenges.entries
+                        .map(
+                          (entry) => ListTile(
+                            title: Text("${entry.key}: ${entry.value} تحديات",
+                                style:
+                                    const TextStyle(color: Color(0xFF8CEE2B))),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // ✅ زر الإنجاز
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        familyChallenges['محمد'] =
+                            (familyChallenges['محمد'] ?? 0) + 1;
+                      });
+                    },
+                    icon: const Icon(Icons.check_circle),
+                    label: const Text("أنجز تحدي"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF8CEE2B),
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 10),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -76,16 +115,15 @@ class TreePainter extends CustomPainter {
     final Paint leafPaint = Paint()..color = const Color(0xFF8CEE2B);
     const textStyle = TextStyle(color: Colors.white, fontSize: 14);
 
-    final Offset center = Offset(size.width / 2, size.height * 0.75);
-    final double trunkHeight = 150; // ✅ زاد طوله هنا
+    final Offset center = Offset(size.width / 2, size.height * 0.95);
+    const double trunkHeight = 150;
 
-    // رسم الجذع
     canvas.drawRect(
       Rect.fromLTWH(center.dx - 10, center.dy - trunkHeight, 20, trunkHeight),
       trunkPaint,
     );
 
-    final double radius = 130;
+    const double radius = 130;
     final int total = familyChallenges.length;
     final double angleStep = pi / (total + -0.5);
 
@@ -98,10 +136,8 @@ class TreePainter extends CustomPainter {
         branchStart.dy + sin(angle) * radius,
       );
 
-      // الغصن
       canvas.drawLine(branchStart, branchEnd, branchPaint);
 
-      // أوراق التحديات
       final int leaves = entry.value;
       const double leafSpread = 35;
 
@@ -112,7 +148,6 @@ class TreePainter extends CustomPainter {
         canvas.drawCircle(Offset(lx, ly), 6, leafPaint);
       }
 
-      // اسم الشخص
       final textSpan = TextSpan(text: entry.key, style: textStyle);
       final textPainter =
           TextPainter(text: textSpan, textDirection: TextDirection.rtl);

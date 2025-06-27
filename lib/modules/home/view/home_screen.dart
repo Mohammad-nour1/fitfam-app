@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pedometer/pedometer.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
@@ -36,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
     context.read<HomeBloc>().add(LoadHomeDataEvent());
 
+    _requestPermissions();
+
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       setState(() {
         _currentIndex = (_currentIndex + 1) % _backgrounds.length;
@@ -46,25 +49,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 2),
     )..forward();
+  }
 
-    _stepSub = Pedometer.stepCountStream.listen((StepCount event) {
-      final currentSteps = event.steps;
-      if (_initialSteps == 0) _initialSteps = currentSteps;
-      final stepsToday = currentSteps - _initialSteps;
+  Future<void> _requestPermissions() async {
+    final activityGranted = await Permission.activityRecognition.request().isGranted;
+    final sensorsGranted = await Permission.sensors.request().isGranted;
 
-      final distance = stepsToday / 1312; 
-      final calories = stepsToday * 0.04; 
+    if (activityGranted && sensorsGranted) {
+      _stepSub = Pedometer.stepCountStream.listen((StepCount event) {
+        final currentSteps = event.steps;
+        if (_initialSteps == 0) _initialSteps = currentSteps;
+        final stepsToday = currentSteps - _initialSteps;
 
-      context.read<HomeBloc>().add(
-        UpdateStepDataEvent(
-          todayStats: TodayStats(
-            steps: stepsToday,
-            distance: distance,
-            calories: calories,
+        final distance = stepsToday / 1312;
+        final calories = stepsToday * 0.04;
+
+        context.read<HomeBloc>().add(
+          UpdateStepDataEvent(
+            todayStats: TodayStats(
+              steps: stepsToday,
+              distance: distance,
+              calories: calories,
+            ),
           ),
-        ),
-      );
-    });
+        );
+      });
+    }
   }
 
   @override
@@ -73,6 +83,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _animationController.dispose();
     _stepSub.cancel();
     super.dispose();
+  }
+
+  Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    if (_lastPressedAt == null ||
+        now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('اضغط مرة اخرى للخروج من التطبيق')),
+      );
+      return false;
+    }
+    return true;
   }
 
   @override
@@ -87,12 +110,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               _backgrounds[_currentIndex],
               key: ValueKey<String>(_backgrounds[_currentIndex]),
               fit: BoxFit.cover,
-              height: double.maxFinite,
+              height: double.infinity,
             ),
           ),
-          Container(
-            color: const Color(0xFF012532).withOpacity(0.45),
-          ),
+          Container(color: const Color(0xFF012532).withOpacity(0.45)),
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
@@ -103,19 +124,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ],
       ),
     );
-  }
-
-  Future<bool> _onWillPop() async {
-    final now = DateTime.now();
-    if (_lastPressedAt == null ||
-        now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
-      _lastPressedAt = now;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('اضغط مرة اخرى للخروج من التطبيق')),
-      );
-      return false;
-    }
-    return true;
   }
 }
 
@@ -143,15 +151,9 @@ class _HomeContent extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.watch,
-              color: Color.fromARGB(255, 52, 255, 1),
-              size: 25,
-            ),
+            icon: const Icon(Icons.watch, color: Color(0xFF8CEE2B)),
             tooltip: 'ربط الساعة',
-            onPressed: () {
-              Navigator.pushNamed(context, '/device-setup');
-            },
+            onPressed: () => Navigator.pushNamed(context, '/device-setup'),
           ),
         ],
       ),
@@ -180,15 +182,13 @@ class _HomeContent extends StatelessWidget {
           if (state is HomeError) {
             return Center(
               child: Text("حدث خطأ: ${state.message}",
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(color: Colors.white)),
             );
           }
 
           return const SizedBox.shrink();
         },
       ),
-      
     );
   }
 
@@ -199,31 +199,20 @@ class _HomeContent extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFB2E475), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 101, 121, 78).withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("تحدي اليوم",
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
+              style: TextStyle(fontSize: 20, color: Colors.white)),
           const SizedBox(height: 8),
           Text(data.currentChallenge,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
+              style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 12),
           LinearProgressIndicator(
             value: data.progress,
-            backgroundColor: Colors.white,
-            color: const Color(0xFF012532),
+            backgroundColor: Colors.white24,
+            color: const Color(0xFF8CEE2B),
             minHeight: 8,
           ),
         ],
@@ -241,57 +230,32 @@ class _HomeContent extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildAnimatedStatCircle(
-              icon: Icons.local_fire_department,
-              label: "سعرات",
-              value: stats.calories.toInt(),
-              goal: 500,
-              color: const Color(0xFFB2E475),
-              size: 45.0,
-            ),
+            _buildAnimatedStatCircle(Icons.local_fire_department, "سعرات",
+                stats.calories.toInt(), 500, const Color(0xFFB2E475), 45),
             const SizedBox(width: 10),
-            _buildAnimatedStatCircle(
-              icon: Icons.directions_walk,
-              label: "خطوات",
-              value: stats.steps,
-              goal: 10000,
-              color: const Color(0xFF8CEE2B),
-              size: 59.0,
-            ),
+            _buildAnimatedStatCircle(Icons.directions_walk, "خطوات",
+                stats.steps, 10000, const Color(0xFF8CEE2B), 59),
             const SizedBox(width: 10),
-            _buildAnimatedStatCircle(
-              icon: Icons.straighten,
-              label: "مسافة",
-              value: stats.distance.toInt(),
-              goal: 7,
-              color: const Color(0xFFB2E475),
-              size: 45.0,
-            ),
+            _buildAnimatedStatCircle(Icons.straighten, "مسافة",
+                stats.distance.toInt(), 7, const Color(0xFFB2E475), 45),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildAnimatedStatCircle({
-    required IconData icon,
-    required String label,
-    required int value,
-    required int goal,
-    required Color color,
-    required double size,
-  }) {
+  Widget _buildAnimatedStatCircle(
+      IconData icon, String label, int value, int goal, Color color, double size) {
     double percent = (value / goal).clamp(0.0, 1.0);
-
     return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: percent),
+      tween: Tween(begin: 0, end: percent),
       duration: const Duration(seconds: 2),
       builder: (context, animationValue, child) {
         return Column(
           children: [
             CircularPercentIndicator(
               radius: size,
-              lineWidth: 8.0,
+              lineWidth: 8,
               percent: animationValue,
               center: Icon(icon, size: size / 1.5, color: color),
               progressColor: color,
@@ -309,40 +273,30 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _buildFamilySection(HomeData data) {
+    final members = data.familyActivity.take(3).toList(); // عرض أول 3 فقط
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text("نشاط العائلة",
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold)),
+            style: TextStyle(color: Colors.white, fontSize: 18)),
         const SizedBox(height: 8),
-        SizedBox(
-          height: 110,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: data.familyActivity.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 25),
-            itemBuilder: (context, index) {
-              final member = data.familyActivity[index];
-              return Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundImage: AssetImage('assets/images/user.png'),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(member.name,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text("${member.steps} خطوة",
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 12)),
-                ],
-              );
-            },
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: members.map((member) {
+            return Column(
+              children: [
+                const CircleAvatar(
+                  radius: 25,
+                  backgroundImage: AssetImage('assets/images/user.png'),
+                ),
+                const SizedBox(height: 5),
+                Text(member.name,
+                    style: const TextStyle(color: Colors.white, fontSize: 13)),
+                Text("${member.distance.toStringAsFixed(1)} كم",
+                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              ],
+            );
+          }).toList(),
         ),
       ],
     );
@@ -353,10 +307,7 @@ class _HomeContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text("شاراتي",
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold)),
+            style: TextStyle(color: Colors.white, fontSize: 18)),
         const SizedBox(height: 8),
         Row(
           children: List.generate(3, (index) {
@@ -370,7 +321,7 @@ class _HomeContent extends StatelessWidget {
             );
           }),
         ),
-        const SizedBox(height: 110),
+        const SizedBox(height: 100),
       ],
     );
   }
