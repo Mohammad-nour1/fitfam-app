@@ -13,7 +13,6 @@ class ChallengesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFF012532),
-      appBar: AppBar(title: const Text("التحديات")),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: challenges.length,
@@ -56,55 +55,61 @@ class ChallengesScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF8CEE2B),
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-            ),
-            backgroundColor: const Color(0xFF1E3D40),
-            builder: (context) {
-              return Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text("اختر نوع التحدي",
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white)),
-                    const SizedBox(height: 20),
-                    _buildOptionCard(
-                      context: context,
-                      label: "تحدي أوفلاين",
-                      icon: Icons.cloud_off,
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/random-challenge');
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildOptionCard(
-                      context: context,
-                      label: "تحدي أونلاين",
-                      icon: Icons.cloud_done,
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/create-challenge');
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                  ],
+      floatingActionButton: Align(
+        alignment: Alignment.bottomRight,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 20, right: 25),
+          child: FloatingActionButton.extended(
+            backgroundColor: const Color(0xFF8CEE2B),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                 ),
+                backgroundColor: const Color(0xFF1E3D40),
+                builder: (context) {
+                  return Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text("اختر نوع التحدي",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
+                        const SizedBox(height: 20),
+                        _buildOptionCard(
+                          context: context,
+                          label: "تحدي أوفلاين",
+                          icon: Icons.cloud_off,
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, '/random-challenge');
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildOptionCard(
+                          context: context,
+                          label: "تحدي أونلاين",
+                          icon: Icons.cloud_done,
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, '/create-challenge');
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-        icon: const Icon(Icons.directions_run),
-        label: const Text("ابدأ تحدي جديد"),
+            icon: const Icon(Icons.directions_run),
+            label: const Text("ابدأ تحدي جديد"),
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

@@ -36,7 +36,7 @@ class _UserSetupFormState extends State<UserSetupForm> {
   String ageGroup = '18-30';
   String activityType = 'مشي';
   String goal = 'تحسين اللياقة';
-  
+
   int weight = 60;
 
   final dropdownTextStyle = const TextStyle(color: Colors.white);
@@ -130,7 +130,6 @@ class _UserSetupFormState extends State<UserSetupForm> {
                   });
                 },
               ),
-              
               const SizedBox(height: 20),
               const Text("الوزن:", style: TextStyle(color: Colors.white)),
               DropdownButtonFormField<int>(
@@ -159,13 +158,12 @@ class _UserSetupFormState extends State<UserSetupForm> {
                             ageGroup: ageGroup,
                             activityType: activityType,
                             goal: goal,
-                            
                             weight: weight,
                           ),
                         );
                   }
                 },
-                child: const Text("ابدأ التحدي الأول"),
+                child: const Text("إبدأ رحلتك الصحية"),
               ),
             ],
           ),

@@ -1,9 +1,53 @@
-import 'dart:ui';
-import 'package:fitfam2/core/auth/view/login_screen.dart';
+import 'package:fitfam2/modules/user_setup/view/user_setup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  bool _isLoading = false;
+  String? _error;
+
+  Future<void> _signUp() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    try {
+      final response = await _supabase.auth.signUp(
+        email: email,
+        password: password,
+      );
+
+      if (response.user != null) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const UserSetupScreen()),
+          (route) => false,
+        );
+      } else {
+        setState(() => _error = "فشل إنشاء الحساب.");
+      }
+    } catch (e) {
+      setState(() => _error = e.toString());
+    }
+
+    setState(() => _isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,15 +58,9 @@ class SignUpScreen extends StatelessWidget {
           Positioned(
             left: -340,
             bottom: -60,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              child: Opacity(
-                opacity: 0.7,
-                child: Image.asset(
-                  'assets/images/logo2.png',
-                  height: 750,
-                ),
-              ),
+            child: Opacity(
+              opacity: 0.7,
+              child: Image.asset('assets/images/logo2.png', height: 750),
             ),
           ),
           Padding(
@@ -40,21 +78,29 @@ class SignUpScreen extends StatelessWidget {
                           color: Colors.white,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
-                  _inputField("الاسم الكامل"),
+                  _inputField("الاسم الكامل", _nameController),
                   const SizedBox(height: 15),
-                  _inputField("البريد الإلكتروني"),
+                  _inputField("البريد الإلكتروني", _emailController),
                   const SizedBox(height: 15),
-                  _inputField("كلمة المرور", isPassword: true),
-                  const SizedBox(height: 30),
+                  _inputField("كلمة المرور", _passwordController,
+                      isPassword: true),
+                  const SizedBox(height: 20),
+                  if (_error != null)
+                    Text(_error!, style: const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 10),
                   ElevatedButton(
+                    onPressed: _isLoading ? null : _signUp,
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : const Text("إنشاء الحساب"),
+                  ),
+                  const SizedBox(height: 13),
+                  TextButton(
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        (route) => false,
-                      );
+                      Navigator.pushNamed(context, '/LoginScreen');
                     },
-                    child: const Text("إنشاء الحساب"),
+                    child: const Text("! هل لديك حساب بالفعل",
+                        style: TextStyle(color: Colors.white70)),
                   ),
                 ],
               ),
@@ -65,8 +111,10 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
-  Widget _inputField(String hint, {bool isPassword = false}) {
+  Widget _inputField(String hint, TextEditingController controller,
+      {bool isPassword = false}) {
     return TextField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hint,
@@ -74,9 +122,11 @@ class SignUpScreen extends StatelessWidget {
         fillColor: const Color(0xFF5F757C),
         hintStyle: const TextStyle(color: Colors.white70),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
       ),
+      style: const TextStyle(color: Colors.white),
     );
   }
 }

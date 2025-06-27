@@ -11,69 +11,52 @@ class HealthTreeScreen extends StatefulWidget {
 class _HealthTreeScreenState extends State<HealthTreeScreen> {
   Map<String, int> familyChallenges = {
     'محمد': 4,
-    'عادل': 7,
+    'عادل': 5,
     'خالد': 3,
-    'نور': 5,
-    'ليلى': 2,
+    'نور': 3,
+    'ليلى': 4,
+    'سارة': 3,
+    'ياسين': 8
   };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF012532),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              const Text(
-                "كل شخص له غصن 🌿",
-                style: TextStyle(color: Colors.white70, fontSize: 18),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: 400,
-                height: 600,
-                child: CustomPaint(
-                  painter: TreePainter(familyChallenges: familyChallenges),
-                ),
-              ),
-              const SizedBox(height: 10),
-              ...familyChallenges.entries
-                  .map((entry) => _treeStat(entry.key, entry.value))
-                  .toList(),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    familyChallenges['محمد'] =
-                        (familyChallenges['محمد'] ?? 0) + 1;
-                  });
-                },
-                child: const Text("أنجز تحدي"),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _treeStat(String name, int value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
         children: [
-          Text(
-            "$name: ",
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+          const SizedBox(height: 80),
+          const SizedBox(height: 0),
+          Expanded(
+            child: Center(
+              child: CustomPaint(
+                painter: TreePainter(familyChallenges: familyChallenges),
+                size: const Size(double.infinity, double.infinity),
+              ),
+            ),
           ),
-          Text(
-            "$value تحديات",
-            style: const TextStyle(color: Color(0xFF8CEE2B), fontSize: 16),
+          const SizedBox(height: 5),
+          ...familyChallenges.entries
+              .map((entry) => Text("${entry.key}: ${entry.value} تحديات",
+                  style:
+                      const TextStyle(color: Color(0xFF8CEE2B), fontSize: 16)))
+              .toList(),
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                familyChallenges['محمد'] = (familyChallenges['محمد'] ?? 0) + 1;
+              });
+            },
+            icon: const Icon(Icons.check_circle),
+            label: const Text("أنجز تحدي"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF8CEE2B),
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+            ),
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -86,58 +69,61 @@ class TreePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final trunkPaint = Paint()..color = Colors.brown;
-    final branchPaint = Paint()
+    final Paint trunkPaint = Paint()..color = Colors.brown;
+    final Paint branchPaint = Paint()
       ..color = Colors.brown
-      ..strokeWidth = 4;
-    final leafPaint = Paint()..color = const Color(0xFF8CEE2B);
-    final textStyle = TextStyle(color: Colors.white, fontSize: 14);
+      ..strokeWidth = 5;
+    final Paint leafPaint = Paint()..color = const Color(0xFF8CEE2B);
+    const textStyle = TextStyle(color: Colors.white, fontSize: 14);
 
-    double trunkWidth = 20;
-    double trunkHeight = 180;
-    double startX = size.width / 2;
-    double trunkTopY = size.height - trunkHeight;
+    final Offset center = Offset(size.width / 2, size.height * 0.75);
+    final double trunkHeight = 150; // ✅ زاد طوله هنا
 
+    // رسم الجذع
     canvas.drawRect(
-      Rect.fromLTWH(startX - trunkWidth / 2, trunkTopY, trunkWidth, trunkHeight),
+      Rect.fromLTWH(center.dx - 10, center.dy - trunkHeight, 20, trunkHeight),
       trunkPaint,
     );
 
-    double angleStep = pi / (familyChallenges.length + 1);
-    double branchLength = 100;
-    int index = 0;
+    final double radius = 130;
+    final int total = familyChallenges.length;
+    final double angleStep = pi / (total + -0.5);
 
+    int index = 0;
     for (var entry in familyChallenges.entries) {
-      final angle = angleStep * (index + 1) - pi / 2;
-      final Offset branchStart = Offset(startX, trunkTopY);
+      final double angle = angleStep * (index + 1) - pi / 1;
+      final Offset branchStart = Offset(center.dx, center.dy - trunkHeight);
       final Offset branchEnd = Offset(
-        branchStart.dx + cos(angle) * branchLength,
-        branchStart.dy + sin(angle) * branchLength,
+        branchStart.dx + cos(angle) * radius,
+        branchStart.dy + sin(angle) * radius,
       );
 
+      // الغصن
       canvas.drawLine(branchStart, branchEnd, branchPaint);
 
-      
-      int leaves = entry.value;
-      double leafRadius = 40;
-      for (int i = 1; i <= leaves; i++) {
-        double spreadAngle = (pi / 4);
-        double angleOffset = -spreadAngle / 2 + spreadAngle * (i / (leaves + 1));
-        double leafX = branchEnd.dx + cos(angleOffset) * leafRadius;
-        double leafY = branchEnd.dy + sin(angleOffset) * leafRadius;
-        canvas.drawCircle(Offset(leafX, leafY), 8, leafPaint);
+      // أوراق التحديات
+      final int leaves = entry.value;
+      const double leafSpread = 35;
+
+      for (int i = 0; i < leaves; i++) {
+        final double leafAngle = pi / 6 * (i - leaves / 2);
+        final double lx = branchEnd.dx + cos(leafAngle) * leafSpread;
+        final double ly = branchEnd.dy + sin(leafAngle) * leafSpread;
+        canvas.drawCircle(Offset(lx, ly), 6, leafPaint);
       }
 
+      // اسم الشخص
       final textSpan = TextSpan(text: entry.key, style: textStyle);
-      final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.rtl);
+      final textPainter =
+          TextPainter(text: textSpan, textDirection: TextDirection.rtl);
       textPainter.layout();
-      textPainter.paint(canvas, Offset(branchEnd.dx + 6, branchEnd.dy));
+      textPainter.paint(canvas, Offset(branchEnd.dx - 20, branchEnd.dy + 1));
+
       index++;
     }
   }
 
   @override
-  bool shouldRepaint(covariant TreePainter oldDelegate) {
-    return oldDelegate.familyChallenges != familyChallenges;
-  }
+  bool shouldRepaint(TreePainter oldDelegate) =>
+      oldDelegate.familyChallenges != familyChallenges;
 }
