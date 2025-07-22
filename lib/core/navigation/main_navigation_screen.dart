@@ -21,7 +21,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 2;
 
   final List<Widget> _screens = [
-    const FamilyActivityScreen(),
+ FamilyActivityScreen(),
     const ChallengesScreen(),
     BlocProvider(
       create: (_) => HomeBloc()..add(LoadHomeDataEvent()),

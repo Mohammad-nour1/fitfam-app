@@ -41,3 +41,4 @@ class SearchUserEvent extends FamilyEvent {
   @override
   List<Object?> get props => [query];
 }
+class LoadFamilyEvent extends FamilyEvent {}

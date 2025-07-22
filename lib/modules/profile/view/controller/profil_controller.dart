@@ -6,7 +6,7 @@ class ProfileController {
   Future<ProfileModel> fetchProfile() async {
     final response = await http.get(
       Uri.parse(
-          "https://fitfam-backend-production.up.railway.app/api/profile/1"),
+          "https://fitfam-backend-production.up.railway.app/api/profile/by-user/6"),
     );
 
     if (response.statusCode == 200) {

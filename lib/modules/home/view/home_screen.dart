@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:fitfam2/core/notifications/notifications.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -26,20 +27,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   ];
 
   int _currentIndex = 0;
-  late Timer _timer;
+  late Timer _bgTimer;
   late AnimationController _animationController;
-  DateTime? _lastPressedAt;
   late StreamSubscription<StepCount> _stepSub;
   int _initialSteps = 0;
+  bool _challengeCompleted = false;
+  DateTime? _lastPressedAt;
 
   @override
   void initState() {
     super.initState();
+
     context.read<HomeBloc>().add(LoadHomeDataEvent());
 
-    _requestPermissions();
+    _requestNotificationPermission();
 
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _bgTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       setState(() {
         _currentIndex = (_currentIndex + 1) % _backgrounds.length;
       });
@@ -49,37 +52,72 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 2),
     )..forward();
+
+    Timer(const Duration(seconds: 120), () {
+      NotificationHelper.showNotification(
+        title: "💪 تحدي جديد",
+        body: "أكمل صديقك أحمد تحديًا جديدًا، هل أنت مستعد؟",
+      );
+    });
+
+    _requestActivityPermissions();
   }
 
-  Future<void> _requestPermissions() async {
-    final activityGranted = await Permission.activityRecognition.request().isGranted;
+  Future<void> _requestNotificationPermission() async {
+    final status = await Permission.notification.status;
+    if (!status.isGranted) {
+      await Permission.notification.request();
+    }
+  }
+
+  Future<void> _requestActivityPermissions() async {
+    final activityGranted =
+        await Permission.activityRecognition.request().isGranted;
     final sensorsGranted = await Permission.sensors.request().isGranted;
 
     if (activityGranted && sensorsGranted) {
-      _stepSub = Pedometer.stepCountStream.listen((StepCount event) {
-        final currentSteps = event.steps;
-        if (_initialSteps == 0) _initialSteps = currentSteps;
-        final stepsToday = currentSteps - _initialSteps;
+      _startPedometerStream();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('الرجاء السماح للتطبيق بقراءة خطوات المشي')),
+      );
+    }
+  }
 
-        final distance = stepsToday / 1312;
-        final calories = stepsToday * 0.04;
+  void _startPedometerStream() {
+    _stepSub = Pedometer.stepCountStream.listen(
+      (StepCount event) {
+        final current = event.steps;
+        if (_initialSteps == 0) _initialSteps = current;
+        final today = current - _initialSteps;
+        final dist = today / 1312;
+        final cal = today * 0.04;
 
         context.read<HomeBloc>().add(
-          UpdateStepDataEvent(
-            todayStats: TodayStats(
-              steps: stepsToday,
-              distance: distance,
-              calories: calories,
-            ),
-          ),
-        );
-      });
-    }
+              UpdateStepDataEvent(
+                todayStats:
+                    TodayStats(steps: today, distance: dist, calories: cal),
+              ),
+            );
+
+        if (today >= 10 && !_challengeCompleted) {
+          _challengeCompleted = true;
+          NotificationHelper.showNotification(
+            title: "🎉 مبروك!",
+            body: "لقد أكملت تحدي 10 خطوات!",
+          );
+        }
+      },
+      onError: (e) {
+        debugPrint('Pedometer Error: $e');
+      },
+    );
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _bgTimer.cancel();
     _animationController.dispose();
     _stepSub.cancel();
     super.dispose();
@@ -91,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
       _lastPressedAt = now;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('اضغط مرة اخرى للخروج من التطبيق')),
+        const SnackBar(content: Text('اضغط مرة أخرى للخروج')),
       );
       return false;
     }
@@ -108,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             duration: const Duration(seconds: 1),
             child: Image.asset(
               _backgrounds[_currentIndex],
-              key: ValueKey<String>(_backgrounds[_currentIndex]),
+              key: ValueKey(_backgrounds[_currentIndex]),
               fit: BoxFit.cover,
               height: double.infinity,
             ),
@@ -162,7 +200,6 @@ class _HomeContent extends StatelessWidget {
           if (state is HomeLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (state is HomeLoaded) {
             final data = state.data;
             return ListView(
@@ -170,7 +207,7 @@ class _HomeContent extends StatelessWidget {
               children: [
                 _buildChallengeCard(data),
                 const SizedBox(height: 15),
-                _buildStatsSection(data.todayStats),
+                _buildStatsSection(data.todayStats, data.challengeTarget),
                 const SizedBox(height: 15),
                 _buildFamilySection(data),
                 const SizedBox(height: 20),
@@ -178,14 +215,11 @@ class _HomeContent extends StatelessWidget {
               ],
             );
           }
-
           if (state is HomeError) {
             return Center(
-              child: Text("حدث خطأ: ${state.message}",
-                  style: const TextStyle(color: Colors.white)),
-            );
+                child: Text("خطأ: ${state.message}",
+                    style: const TextStyle(color: Colors.white)));
           }
-
           return const SizedBox.shrink();
         },
       ),
@@ -210,9 +244,10 @@ class _HomeContent extends StatelessWidget {
               style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 12),
           LinearProgressIndicator(
-            value: data.progress,
-            backgroundColor: Colors.white24,
-            color: const Color(0xFF8CEE2B),
+            value:
+                (data.todayStats.steps / data.challengeTarget).clamp(0.0, 1.0),
+            backgroundColor: Colors.white,
+            color: const Color(0xFF012532),
             minHeight: 8,
           ),
         ],
@@ -220,7 +255,7 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsSection(TodayStats stats) {
+  Widget _buildStatsSection(TodayStats stats, int challengeTarget) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -244,19 +279,19 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildAnimatedStatCircle(
-      IconData icon, String label, int value, int goal, Color color, double size) {
-    double percent = (value / goal).clamp(0.0, 1.0);
+  Widget _buildAnimatedStatCircle(IconData icon, String label, int value,
+      int goal, Color color, double size) {
+    final percent = (value / goal).clamp(0.0, 1.0);
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: percent),
       duration: const Duration(seconds: 2),
-      builder: (context, animationValue, child) {
+      builder: (context, anim, _) {
         return Column(
           children: [
             CircularPercentIndicator(
               radius: size,
               lineWidth: 8,
-              percent: animationValue,
+              percent: anim,
               center: Icon(icon, size: size / 1.5, color: color),
               progressColor: color,
               backgroundColor: Colors.white24,
@@ -273,27 +308,31 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _buildFamilySection(HomeData data) {
-    final members = data.familyActivity.take(3).toList(); // عرض أول 3 فقط
+    final members = data.familyActivity.take(3).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text("نشاط العائلة",
             style: TextStyle(color: Colors.white, fontSize: 18)),
         const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 24,
+          runSpacing: 8,
           children: members.map((member) {
             return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 25,
-                  backgroundImage: AssetImage('assets/images/user.png'),
+                  backgroundImage: AssetImage(member.avatar),
                 ),
                 const SizedBox(height: 5),
                 Text(member.name,
                     style: const TextStyle(color: Colors.white, fontSize: 13)),
                 Text("${member.distance.toStringAsFixed(1)} كم",
-                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 12)),
               ],
             );
           }).toList(),
@@ -303,6 +342,7 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _buildBadgesSection() {
+    final badgeLabels = ['المثابرة', 'الانضباط', 'الإنجاز'];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -310,13 +350,22 @@ class _HomeContent extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontSize: 18)),
         const SizedBox(height: 8),
         Row(
-          children: List.generate(3, (index) {
+          children: List.generate(badgeLabels.length, (i) {
             return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.emoji_events, color: const Color(0xFFB2E475)),
+              padding: const EdgeInsets.only(right: 16),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.emoji_events,
+                        color: const Color(0xFFB2E475)),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(badgeLabels[i],
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                ],
               ),
             );
           }),

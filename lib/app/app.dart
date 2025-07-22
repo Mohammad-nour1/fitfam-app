@@ -1,4 +1,5 @@
 import 'package:fitfam2/modules/challenges/view/random_challenge_screen.dart';
+import 'package:fitfam2/modules/family/view/add_family_member_screen.dart';
 import 'package:fitfam2/modules/family/view/family_activity_screen.dart';
 import 'package:fitfam2/modules/family/view/health_tree_screen.dart';
 import 'package:fitfam2/modules/rewards/pointes_screen.dart';
@@ -48,7 +49,8 @@ class FitFamApp extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF8CEE2B),
                 foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
             bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -69,43 +71,54 @@ class FitFamApp extends StatelessWidget {
               case '/LogoutScreen':
                 return MaterialPageRoute(builder: (_) => const LogoutScreen());
               case '/user-setup':
-                return MaterialPageRoute(builder: (_) => const UserSetupScreen());
+                return MaterialPageRoute(
+                    builder: (_) => const UserSetupScreen());
               case '/main':
-                return MaterialPageRoute(builder: (_) => const MainNavigationScreen());
+                return MaterialPageRoute(
+                    builder: (_) => const MainNavigationScreen());
               case '/create-challenge':
-                return MaterialPageRoute(builder: (_) => const CreateChallengeScreen());
+                return MaterialPageRoute(
+                    builder: (_) => const CreateChallengeScreen());
               case '/rewards':
                 return MaterialPageRoute(builder: (_) => const RewardsScreen());
               case '/challenge-details':
                 final challengeId = settings.arguments as int;
                 return MaterialPageRoute(
-                  builder: (_) => ChallengeDetailsScreen(challengeId: challengeId),
+                  builder: (_) =>
+                      ChallengeDetailsScreen(challengeId: challengeId),
                 );
               case '/health-tree':
-                return MaterialPageRoute(builder: (_) => const HealthTreeScreen());
-                case '/points':
+                return MaterialPageRoute(
+                    builder: (_) => const HealthTreeScreen());
+              case '/points':
                 return MaterialPageRoute(builder: (_) => const PointsScreen());
-                case '/family-activity':
-                return MaterialPageRoute(builder: (_) => const FamilyActivityScreen());
+              case '/family-activity':
+                return MaterialPageRoute(
+                    builder: (_) => FamilyActivityScreen());
               case '/device-setup':
-                return MaterialPageRoute(builder: (_) => const DeviceSetupScreen());
+                return MaterialPageRoute(
+                    builder: (_) => const DeviceSetupScreen());
               case '/random-challenge':
-                  return MaterialPageRoute(builder: (_) => const RandomChallengeScreen());
-
+                return MaterialPageRoute(
+                    builder: (_) => const RandomChallengeScreen());
+              case '/add-family':
+                return MaterialPageRoute(
+                    builder: (_) => AddFamilyMemberScreen());
               case '/support':
                 return MaterialPageRoute(builder: (_) => const SupportScreen());
               default:
-                return MaterialPageRoute(builder: (_) => const MainNavigationScreen());
+                return MaterialPageRoute(
+                    builder: (_) => const MainNavigationScreen());
             }
           },
-        
           home: BlocListener<AppBloc, String>(
             listener: (context, route) {
               if (route != "/SplashScreen") {
-                Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
+                Navigator.pushNamedAndRemoveUntil(
+                    context, route, (route) => false);
               }
             },
-            child: const SplashScreen(), 
+            child: const SplashScreen(),
           ),
         );
       },

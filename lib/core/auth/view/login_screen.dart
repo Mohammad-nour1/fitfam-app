@@ -64,11 +64,11 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           Positioned(
-            bottom: -220,
-            left: -360,
+            bottom: -100,
+            left: -290,
             child: Opacity(
               opacity: 0.7,
-              child: Image.asset('assets/images/logo2.png', height: 750),
+              child: Image.asset('assets/images/logo2.png', height: 600),
             ),
           ),
           SingleChildScrollView(

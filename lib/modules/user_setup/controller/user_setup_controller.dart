@@ -9,10 +9,11 @@ class UserSetupController {
     required String goal,
     required int weight,
   }) async {
-    const String url = 'https://fitfam-backend-production.up.railway.app/api/profile';
+    const String url =
+        'https://fitfam-backend-production.up.railway.app/api/profile/user/6';
 
     final Map<String, dynamic> payload = {
-      "user_id": 1,
+      "user_id": 6,
       "family_members": familyMembers,
       "age_group": _translateAgeGroup(ageGroup),
       "preferred_activity": _translateActivity(activityType),
@@ -20,7 +21,7 @@ class UserSetupController {
       "weight": weight,
     };
 
-    final response = await http.post(
+    final response = await http.put(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
@@ -31,7 +32,6 @@ class UserSetupController {
     }
   }
 
-  // 🧠 تحويلات اللغة
   String _translateAgeGroup(String ar) {
     switch (ar) {
       case 'أقل من 18':

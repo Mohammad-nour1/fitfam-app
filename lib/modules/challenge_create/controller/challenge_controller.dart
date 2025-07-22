@@ -7,7 +7,6 @@ class ChallengeController {
     required String reward,
   }) async {
     
-    // await Dio().post('https://api.yourserver.com/challenges', data: {...});
     await Future.delayed(const Duration(seconds: 2)); 
   }
 }

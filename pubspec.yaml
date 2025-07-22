@@ -49,6 +49,10 @@ dependencies:
   health: ^13.1.1
   supabase_flutter: ^2.9.1
   http: ^1.4.0
+  flutter_local_notifications: ^19.3.0
+  integration_test:
+    sdk: flutter
+  bloc_test: ^10.0.0
 
 flutter_launcher_icons:
   android: true
@@ -89,6 +93,9 @@ flutter:
     - assets/images/prof.png
     - assets/images/logoapp.png
     - assets/images/user.png
+    - assets/images/user1.png
+    - assets/images/user2.png
+    - assets/images/add.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

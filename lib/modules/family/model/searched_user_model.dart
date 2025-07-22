@@ -3,11 +3,8 @@ class SearchedUserModel {
   final String name;
   final String email;
 
-  SearchedUserModel({
-    required this.id,
-    required this.name,
-    required this.email,
-  });
+  SearchedUserModel(
+      {required this.id, required this.name, required this.email});
 
   factory SearchedUserModel.fromJson(Map<String, dynamic> json) {
     return SearchedUserModel(
@@ -17,3 +14,4 @@ class SearchedUserModel {
     );
   }
 }
+

@@ -1,6 +1,6 @@
-
 import 'package:equatable/equatable.dart';
-import '../model/home_model.dart';
+
+import 'package:fitfam2/modules/home/model/home_model.dart';
 
 abstract class HomeState extends Equatable {
   @override

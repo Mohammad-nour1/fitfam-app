@@ -90,8 +90,6 @@ class _FamilyChallengeScreenState extends State<FamilyChallengeScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // هنا يفترض ترسل التحدي إلى أفراد العائلة كلهم
-                    // حاليا فقط نظهر رسالة نجاح مؤقتة
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('تم إنشاء التحدي العائلي بنجاح! 🎯'),

@@ -1,37 +1,33 @@
-import 'package:fitfam2/modules/watch/health_service.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DeviceSetupScreen extends StatefulWidget {
-  const DeviceSetupScreen({super.key});
+  const DeviceSetupScreen({Key? key}) : super(key: key);
 
   @override
   State<DeviceSetupScreen> createState() => _DeviceSetupScreenState();
 }
 
 class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
-  final HealthService _healthService = HealthService();
+  bool _isGranted = false;
 
-  bool isConnected = false;
-  String deviceName = "لم يتم الربط";
-  int steps = 0;
-  int calories = 0;
-  String distance = "0.0";
+  @override
+  void initState() {
+    super.initState();
+    _requestNecessaryPermissions();
+  }
 
-  Future<void> connectAndFetchData() async {
-    final granted = await _healthService.requestAuthorization();
-    if (granted) {
-      final data = await _healthService.getTodayData();
-      setState(() {
-        isConnected = true;
-        deviceName = "Google Fit - Mi Band";
-        steps = data['steps'];
-        calories = data['calories'];
-        distance = data['distance'];
-      });
+  Future<void> _requestNecessaryPermissions() async {
+    final actStatus = await Permission.activityRecognition.request();
+    final bodyStatus = await Permission.sensors.request();
+
+    if (actStatus.isGranted && bodyStatus.isGranted) {
+      setState(() => _isGranted = true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("تم رفض الصلاحيات")),
-      );
+      if (actStatus.isPermanentlyDenied || bodyStatus.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+      setState(() => _isGranted = false);
     }
   }
 
@@ -39,32 +35,38 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF012532),
-      appBar: AppBar(title: const Text("إعدادات الجهاز")),
+      appBar: AppBar(
+        title: const Text("إعدادات الجهاز"),
+        centerTitle: true,
+      ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.watch, size: 100, color: Color(0xFF8CEE2B)),
-              const SizedBox(height: 20),
-              Text("الجهاز: $deviceName", style: const TextStyle(color: Colors.white, fontSize: 18)),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: connectAndFetchData,
-                icon: const Icon(Icons.link),
-                label: const Text("ربط الساعة"),
-              ),
-              const SizedBox(height: 20),
-              if (isConnected) ...[
-                Text("الخطوات: $steps", style: const TextStyle(color: Colors.white)),
-                Text("السعرات: $calories kcal", style: const TextStyle(color: Colors.white)),
-                Text("المسافة: $distance كم", style: const TextStyle(color: Colors.white)),
-              ],
-            ],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.watch,
+                size: 100,
+                color: _isGranted ? Colors.greenAccent : Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              _isGranted
+                  ? 'الجهاز: جاهز للربط'
+                  : 'الجهاز: لم يتم الربط (الصلاحيات مرفوضة)',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.link),
+              label: Text(_isGranted ? 'إعادة الربط' : 'ربط الساعة'),
+              onPressed: _isGranted
+                  ? _connectDevice 
+                  : _requestNecessaryPermissions,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  void _connectDevice() {
   }
 }

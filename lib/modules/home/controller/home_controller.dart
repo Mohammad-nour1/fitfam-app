@@ -1,58 +1,39 @@
-import 'package:pedometer/pedometer.dart';
 import '../model/home_model.dart';
 
 class HomeController {
-  late Stream<StepCount> _stepCountStream;
-  int _initialSteps = 0;
-
-  void startListeningSteps(Function(TodayStats) onData) {
-    _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen((event) {
-      final int currentSteps = event.steps;
-
-      if (_initialSteps == 0) {
-        _initialSteps = currentSteps;
-      }
-
-      final int stepsToday = currentSteps - _initialSteps;
-
-      final stats = TodayStats(
-        steps: stepsToday,
-        calories: calculateCalories(stepsToday),
-        distance: calculateDistance(stepsToday),
-      );
-
-      onData(stats);
-    });
-  }
-
-  double calculateCalories(int steps) {
-    return steps * 0.04;
-  }
-
-  double calculateDistance(int steps) {
-    return steps * 0.0008;
-  }
-
-  double calculateProgress(int steps, String challengeType, int challengeTarget) {
-    if (challengeType == "مشي" || challengeType == "جري" || challengeType == "steps") {
-      return (steps / challengeTarget).clamp(0.0, 1.0);
-    }
-    return 0.0;
-  }
-
-  
   Future<HomeData> fetchHomeData() async {
-    await Future.delayed(const Duration(seconds: 1)); // محاكاة تحميل البيانات
+    await Future.delayed(const Duration(milliseconds: 500));
 
     return HomeData(
-      userName: "مستخدم",
-      currentChallenge: "تحدي 10,000 خطوة",
-      progress: 0.0,
-      currentChallengeType: "مشي",
+      userName: 'عادل',
+      currentChallenge: 'تحدي 10,000 خطوة',
+      currentChallengeType: 'steps',
       challengeTarget: 10000,
+      progress: 0.0,
       todayStats: TodayStats(steps: 0, calories: 0, distance: 0),
-      familyActivity: [],
+      familyActivity: [
+        FamilyActivityModel(
+          id: '1',
+          name: 'nour',
+          steps: 1200,
+          distance: 0.9,
+          avatar: 'assets/images/user2.png',
+        ),
+        FamilyActivityModel(
+          id: '2',
+          name: 'ali',
+          steps: 800,
+          distance: 0.6,
+          avatar: 'assets/images/user1.png',
+        ),
+      ],
     );
+  }
+
+  double calculateProgress(int steps, String type, int target) {
+    if (type == 'steps') {
+      return (steps / target).clamp(0.0, 1.0);
+    }
+    return 0.0;
   }
 }

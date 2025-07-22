@@ -22,49 +22,42 @@ class TodayStats {
   }
 }
 
+
+
 class FamilyActivityModel {
   final String id;
   final String name;
   final int steps;
   final double distance;
+  final String avatar;      
+
   FamilyActivityModel({
     required this.id,
     required this.name,
     required this.steps,
     required this.distance,
+    required this.avatar,       
   });
 
+  
   FamilyActivityModel copyWith({
     String? id,
     String? name,
     int? steps,
     double? distance,
+    String? avatar,
   }) {
     return FamilyActivityModel(
       id: id ?? this.id,
       name: name ?? this.name,
       steps: steps ?? this.steps,
       distance: distance ?? this.distance,
+      avatar: avatar ?? this.avatar,
     );
-  }
-
-  factory FamilyActivityModel.fromJson(Map<String, dynamic> json) {
-    return FamilyActivityModel(
-      id: json['id'].toString(),
-      name: json['name'],
-      steps: json['steps'] ?? 0,
-      distance: (json['distance'] ?? 0).toDouble(),
-    );
-  }
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'steps': steps,
-      'distance': distance,
-    };
   }
 }
+
+
 
 class HomeData {
   final String userName;
@@ -104,4 +97,5 @@ class HomeData {
       familyActivity: familyActivity ?? this.familyActivity,
     );
   }
+  
 }
